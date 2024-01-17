@@ -1,6 +1,6 @@
-import { PlusIcon } from "@heroicons/react/20/solid";
+import { DocumentPlusIcon } from "@heroicons/react/20/solid";
 import { Draggable, Droppable } from "react-beautiful-dnd";
-import TodoCard from "./TodoCard";
+import Card from "./Card";
 import { useBoardStore } from "@/store/BoardStore";
 import { useModalStore } from "@/store/ModalStore";
 
@@ -35,17 +35,12 @@ function Column({ id, todos, index }: Props) {
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`m-8 p-2 shadow-sm ${
+                className={` m-8 p-2 shadow-sm ${
                   snapshot.isDraggingOver ? "bg-blue-200" : "bg-white/50"
                 }`}
               >
                 <h2 className="flex justify-between font-bold text-xl p-2 py-1">
                   {idToColumnText[id]}
-                  <span className="text-gray-500 bg-gray-200 rounded-full font-normal px-2 py-1">
-                    {!searchString
-                      ? todos.length
-                      : todos.filter((todo) => todo.title.toLowerCase().includes(searchString.toLowerCase())).length}
-                  </span>
                 </h2>
                 <div className="space-y-2">
                   {todos.map((todo, index) => {
@@ -64,7 +59,7 @@ function Column({ id, todos, index }: Props) {
                         index={index}
                       >
                         {(provided) => (
-                          <TodoCard
+                          <Card
                             todo={todo}
                             index={index}
                             id={id}
@@ -78,8 +73,8 @@ function Column({ id, todos, index }: Props) {
                   })}
                   {provided.placeholder}
                   <div className="flex items-end justify-end p-2">
-                    <button className=" text-blue-500 hover:text-blue-600">
-                      <PlusIcon onClick={openModal} className="h-10 w-10" />
+                    <button className=" text-blue-600 hover:text-green-500">
+                      <DocumentPlusIcon onClick={openModal} className="h-6 w-6" />
                     </button>
                   </div>
                 </div>

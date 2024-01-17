@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import {getTodosGroupedByColumns} from "@/lib/getTodosGroupedByColumn";
+import {getTodosGroupedByColumns} from "@/lib/getColumn";
 import { databases, ID, storage } from '@/appwrite';
-import uploadImage from '@/lib/uploadImage';
+
 
 interface BoardState {
     board: Board;
@@ -16,10 +16,7 @@ interface BoardState {
     searchString: string;
     setSearchString: (searchString: string) => void;
 
-    image: File | null;
-    setImage: (image: File | null) => void;
-
-    addTask: (todo: string, columnId: TypedColumn, image?: File | null) => void;
+    addTask: (todo: string, columnId: TypedColumn,) => void;
     deleteTask: (taskIndex: number, todoId: Todo, id: TypedColumn) => void;
 }
 
@@ -38,8 +35,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   setBoardState: (board) => set({ board }),
   updateTodoInDB: async(todo, columnId) => {
     await databases.updateDocument(
-      process.env.NEXT_PUBLIC_DATABASE_ID,
-      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID,
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
       todo.$id,
       {
         title: todo.title,
@@ -49,45 +46,25 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
   searchString: "",
   setSearchString: (searchString) => set({ searchString }),
-  image: null,
-  setImage: (image: File | null) => set({ image }),
   deleteTask: async (taskIndex: number, todo: Todo, id: TypedColumn) => {
     const newColumns = new Map(get().board.columns)
     newColumns.get(id)?.todos.splice(taskIndex, 1);
     set({ board: { columns: newColumns } });
 
-    if (todo.image) {
-      await storage.deleteFile(todo.image.bucketId, todo.image.fileId)
-    }
-
     await databases.deleteDocument(
-      process.env.NEXT_PUBLIC_DATABASE_ID,
-      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID,
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
       todo.$id
     )
   },
-  addTask: async (todo: string, columnId: TypedColumn, image?: File | null) => {
-    let file: Image | undefined;
-
-    if (image) {
-      const fileUploaded = await uploadImage(image);
-      console.log("Uploaded image", fileUploaded)
-      if (fileUploaded) {
-        file = {
-          bucketId: fileUploaded.bucketId,
-          fileId: fileUploaded.$id
-        };
-      }
-    }
-
+  addTask: async (todo: string, columnId: TypedColumn,) => {
     const { $id } = await databases.createDocument(
-      process.env.NEXT_PUBLIC_DATABASE_ID,
-      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID,
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_TODOS_COLLECTION_ID!,
       ID.unique(),
       {
         title: todo,
         status: columnId,
-        ...(file && { image: JSON.stringify(file) }),
       }
     );
 
@@ -100,7 +77,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         $createdAt: new Date().toISOString(),
         title: todo,
         status: columnId,
-        ...(file && { image: file }),
       };
 
       const column = newColumns.get(columnId)

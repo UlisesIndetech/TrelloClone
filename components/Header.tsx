@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { MagnifyingGlassIcon, UserCircleIcon } from "@heroicons/react/20/solid";
+import { MagnifyingGlassIcon} from "@heroicons/react/20/solid";
 import Avatar from "react-avatar";
 import { useBoardStore } from "@/store/BoardStore";
 import { useEffect, useState } from "react";
-import fetchSuggestion from "@/lib/fetchSuggestion";
+
 
 function Header() {
   const [board, searchString, setSearchString] = useBoardStore((state) => [
@@ -17,27 +17,9 @@ function Header() {
   const [loading, setLoading] = useState<boolean>(false);
   const [suggestion, setSuggestion] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (board.columns.size === 0) return;
-    setLoading(true);
-    const fetchSuggestionFunc = async () => {
-      const suggestion = await fetchSuggestion(board);
-      setSuggestion(suggestion);
-      setLoading(false);
-    }
-
-    setTimeout(() => {
-      fetchSuggestionFunc()
-    }, 3000);
-    
-
-  }, [board])
-
-
-
   return (
     <header>
-      <div className="flex flex-col md:flex-row items-center p-5 bg-gray-400">
+      <div className="flex flex-col md:flex-row items-center p-5 bg-gray-200">
         <div className="absolute top-0 left-0 h-96 w-full  rounded-b-md -z-50 opacity-50 " />
         <Image
           src="https://upload.wikimedia.org/wikipedia/en/8/8c/Trello_logo.svg"
